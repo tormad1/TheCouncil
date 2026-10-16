@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "exit_code": 0,
+  "stdout": "OUTSIDE_WRITE_DENIED\n",
+  "stderr": "",
+  "model_calls": 0
+}

@@ -1,0 +1,19 @@
+function init(self)
+ msg.post(".", "acquire_input_focus")
+ self.visible = false
+ local data = json.decode(sys.load_resource("/identity/work.json"))
+ self.panel = gui.new_box_node(vmath.vector3(480,320,0),vmath.vector3(680,160,0))
+ gui.set_color(self.panel,vmath.vector4(0.04,0.04,0.04,0.96))
+ self.text = gui.new_text_node(vmath.vector3(480,320,0),string.format("%04d  %s\n%s  /  %s\nF1 or Esc to close",data.id,data.title,data.date,data.member))
+ gui.set_font(self.text,"debug")
+ gui.set_enabled(self.panel,false)
+ gui.set_enabled(self.text,false)
+end
+function on_input(self, action_id, action)
+ if action.pressed and (action_id == hash("identity") or (action_id == hash("close_identity") and self.visible)) then
+  self.visible = not self.visible
+  gui.set_enabled(self.panel,self.visible)
+  gui.set_enabled(self.text,self.visible)
+  return true
+ end
+end

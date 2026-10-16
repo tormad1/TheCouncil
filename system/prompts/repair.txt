@@ -1,0 +1,1 @@
+Fix only the demonstrated defect. Preserve the accepted concept and visual direction. Do not redesign or add features. Use the exact verification evidence. Return the build summary schema.

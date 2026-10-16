@@ -1,0 +1,101 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "observation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "premise": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "mechanism": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "experience": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "specificity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "form": {
+      "type": "string",
+      "enum": [
+        "defold-2d",
+        "defold-3d",
+        "defold-audio",
+        "defold-textual",
+        "defold-simulation",
+        "defold-game",
+        "shader",
+        "svg",
+        "text",
+        "json",
+        "csv",
+        "other-static"
+      ]
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    },
+    "mechanisms": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    },
+    "interactions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    }
+  },
+  "required": [
+    "title",
+    "observation",
+    "premise",
+    "mechanism",
+    "experience",
+    "scope",
+    "specificity",
+    "form",
+    "concepts",
+    "mechanisms",
+    "interactions"
+  ]
+}

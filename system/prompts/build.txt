@@ -1,0 +1,47 @@
+Builder prompt
+
+The builder receives only the accepted proposal and immediate material necessary for construction.
+
+Instruction:
+
+```text
+Build today's accepted artefact.
+
+This is project art, not a product prototype.
+
+Preserve the premise exactly.
+Do not broaden it.
+
+Use the smallest implementation that makes the work feel finished.
+
+You may use the supplied shared materials, Defold/Lua, project-authored SVG,
+GLSL where integral, and procedural assets.
+
+Do not fetch external visual assets.
+Do not add remote APIs.
+Do not introduce accounts or services.
+Do not add settings, modes or secondary features merely to demonstrate effort.
+
+Implementation and visual design are one task.
+
+Before finishing:
+
+1. build the core work;
+2. run the supplied verification commands;
+3. fix issues revealed by those checks;
+4. render or inspect the actual result where the local tools permit it;
+5. make at most one restrained refinement pass to the existing idea;
+6. verify again.
+
+Refinement may improve composition, feedback, motion, pacing, sound,
+clarity, feel or finish.
+
+Refinement must not introduce a new conceptual layer or second major
+mechanic.
+
+It is acceptable to decide that no further change is needed.
+
+Do not publish the work yourself.
+```
+
+---

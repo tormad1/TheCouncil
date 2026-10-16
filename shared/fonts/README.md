@@ -1,0 +1,1 @@
+Human approval required: place licensed primary and optional monospaced fonts here with licence text. No typeface has been selected. The Defold debug font is used only for the hidden technical identity overlay.

@@ -1,0 +1,20 @@
+{
+  "defold": "1.13.2",
+  "bob": "1.13.2",
+  "java": "Temurin 25.0.1+8 (Windows); OpenJDK 25 (Linux)",
+  "template": 1,
+  "svg_rasterizer": "resvg 0.45.1",
+  "phosphor": "@phosphor-icons/core 2.1.1 Regular subset; MIT",
+  "lua": "5.4 (optional launcher: lupa 2.6)",
+  "python": "3.12+",
+  "tzdata": "2026.2",
+  "test_tools": {
+    "playwright": "1.55.0",
+    "chromium": "140.0.7339.16 (Playwright build 1187)"
+  },
+  "sha256": {
+    "bob.jar": "79f60022a80c52bbb88a1ec7ad44d7771a70cec658e3950c8f0134554078e9d0",
+    "OpenJDK25U-jre_x64_windows_hotspot_25.0.1_8.zip": "317ffcdd88eec2914506ba8456a6d1717f8efb9b148d2214ae793cfa9ec7b54d",
+    "resvg-win64.zip": "a15172d72d72e219b896ef5942a48c1a57b7280d63ef8380d95dee8005549922"
+  }
+}

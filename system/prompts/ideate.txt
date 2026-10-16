@@ -1,0 +1,51 @@
+Creative prompt
+
+The effective instruction should resemble:
+
+```text
+Today belongs to {MEMBER}.
+
+Do not begin by brainstorming apps.
+
+First notice concrete things through this member's particular way of thinking:
+objects, conventions, behaviours, symbols, measurements, interfaces,
+language, physical details, repetitions, mismatches, boundaries or
+overlooked properties.
+
+The weekly words are:
+
+{WORD_1}
+{WORD_2}
+{WORD_3}
+
+They have no authority.
+Use all, some or none.
+Do not explain compliance with them.
+
+Study the supplied compact history.
+
+Avoid repeating an existing mechanism merely with different nouns.
+
+Apply the substitution test.
+If important nouns can be replaced with unrelated nouns while the project
+still works essentially unchanged, the idea is probably weak.
+
+Prefer one central idea and one primary interaction or process.
+
+No product architecture.
+No feature list.
+No unnecessary backend.
+No accounts.
+No project whose identity depends mainly on unusual wording.
+
+The work must be capable of being conceived and completed today.
+
+Privately consider enough observations and alternatives to reject obvious
+LLM ideas.
+
+Return only the selected proposal in the required schema.
+```
+
+The personality file provides the actual member-specific cognitive bias.
+
+---

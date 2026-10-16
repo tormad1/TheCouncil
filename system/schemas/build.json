@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "exhibit": {
+      "type": "boolean"
+    },
+    "retire_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "curation_note": {
+      "type": "string",
+      "maxLength": 600
+    }
+  },
+  "required": [
+    "exhibit",
+    "retire_id",
+    "curation_note"
+  ]
+}

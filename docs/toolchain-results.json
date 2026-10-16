@@ -1,0 +1,36 @@
+{
+  "defold_verification": {
+    "classification": "simple",
+    "commands": [
+      {
+        "duration_seconds": 3.3439999999973,
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": " 33% Working\n 33% Reading classes\n2026-10-16 14:37:00 INFO     \n 56% Reading classes\n 63% Reading classes\n 63% Cleaning engine\n 65% Cleaning engine\n 70% Cleaning engine\n 70% Reading tasks\n 73% Building\n2026-10-16 14:37:00 INFO    Creating task builder with a fixed thread pool executor using 10 threads \n2026-10-16 14:37:00 INFO    Build tasks \n 75% Building\n2026-10-16 14:37:01 INFO    Generating the resource graph \n2026-10-16 14:37:01 INFO    Generating the resource graph took 0.019000 s \n2026-10-16 14:37:01 INFO    Creation of the excluded resources list. \n2026-10-16 14:37:01 INFO    Creation of the excluded resources list took 0.000000 s \n2026-10-16 14:37:01 INFO    GameProjectBuilder.createArchive \n2026-10-16 14:37:01 INFO    Creating archive entries with a fixed thread pool executor using 10 threads \n2026-10-16 14:37:01 INFO    GameProjectBuilder.createArchive took 0.030000 \n2026-10-16 14:37:01 INFO    buildManifestData begin \n2026-10-16 14:37:01 INFO    ManifestBuilder.buildManifestData took 0.003000 \n2026-10-16 14:37:01 INFO    buildManifestData begin \n2026-10-16 14:37:01 INFO    ManifestBuilder.buildManifestData took 0.000000 \n2026-10-16 14:37:01 INFO    Writing the resource graph to json \n2026-10-16 14:37:01 INFO    Writing the resource graph to json took 0.006000 s \n2026-10-16 14:37:01 INFO    Build tasks took 0.863000 s \n 75% Generating report\n 78% Bundling\n100% Bundling\nTime profiler report creation took 0.01 seconds\nWarning: Failed to clean up temp directory 'C:\\Users\\torma\\AppData\\Local\\Temp\\7767213234631572116'\n"
+      }
+    ],
+    "errors": [],
+    "hashes": {
+      "game.project": "10d0488d1c9e897f55528bd2f56b1b8cf83d39f00a556e5dff70da32a955bc2c",
+      "identity/identity.gui": "9220d128ea4c9ef5c131f8471c06aadb28277f45ea06a162643a86d7698a3136",
+      "identity/identity.gui_script": "0716995cf15b2fd72eee5e204ad1d0b1a5cdc676e5be6fb2ab3e316e27cabed4",
+      "identity/work.json": "ec9a1902d74534bd4f0b9df62ba02fcbf63be8e90c402ae010bbf0442bc41990",
+      "input/game.input_binding": "08413ff6d9ccc7aef574d3138316bd107a34189a9e45f13bb977d2ff842efb30",
+      "main/main.collection": "006fec2ecf160e9109d70089215b326a34c2d743f855e5109c0ee905656faf09",
+      "main/main.script": "18f34ffcca0fbdd6f690d5e6e4c0e2e464bcccc0980178bf58df8e9c245acb06",
+      "manifest.json": "2380dd683192277aae99574d2624ac2a6319940b782d959bda5d53106deccf6b",
+      "preview-identity.png": "8296b44bc1d21a2485280e0dbedbe52f0c8e754f08031d74255fb0067bc3f100",
+      "preview.png": "cb8d3e3df767c41682c424c9a0fa2eedec40eed1f6b8ad746f64b17427372eab"
+    },
+    "ok": true,
+    "warnings": []
+  },
+  "rasterizer": {
+    "duration_seconds": 0.125,
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "live_model_calls": 0,
+  "ok": true
+}
