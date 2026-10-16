@@ -1,0 +1,7 @@
+name: "main"
+embedded_instances {
+ id: "studio"
+ data: "components {\n  id: \"study\"\n  component: \"/main/study.gui\"\n  position { x: 0 y: 0 z: 0 }\n  rotation { x: 0 y: 0 z: 0 w: 1 }\n}\ncomponents {\n  id: \"main\"\n  component: \"/main/main.script\"\n  position { x: 0 y: 0 z: 0 }\n  rotation { x: 0 y: 0 z: 0 w: 1 }\n}\ncomponents {\n  id: \"identity\"\n  component: \"/identity/identity.gui\"\n  position { x: 0 y: 0 z: 0 }\n  rotation { x: 0 y: 0 z: 0 w: 1 }\n}\n"
+ position { x: 0 y: 0 z: 0 }
+ rotation { x: 0 y: 0 z: 0 w: 1 }
+}

@@ -1,0 +1,83 @@
+local sentence = "What remains is the same."
+local ink = vmath.vector4(0.85, 0.84, 0.78, 1)
+local muted = vmath.vector4(0.48, 0.49, 0.47, 1)
+local amber = vmath.vector4(0.91, 0.62, 0.33, 1)
+local blue = vmath.vector4(0.44, 0.69, 0.76, 1)
+local pitch, origin, baseline = 23, 204, 330
+local function text(value, x, y, scale, color)
+ local n = gui.new_text_node(vmath.vector3(x,y,0), value)
+ gui.set_font(n, "type")
+ gui.set_scale(n, vmath.vector3(scale,scale,1))
+ gui.set_color(n,color)
+ return n
+end
+local function box(x,y,w,h,color)
+ local n = gui.new_box_node(vmath.vector3(x,y,0),vmath.vector3(w,h,0))
+ gui.set_color(n,color)
+ return n
+end
+function init(self)
+ msg.post(".","acquire_input_focus")
+ self.left, self.right, self.time = 1, #sentence, 0
+ self.letters, self.trails, self.held = {}, {}, {}
+ text("WHICH WAY IS DELETE?",480,535,0.85,ink)
+ text("01   /   SABLE   /   16 OCT 2026",480,502,0.55,muted)
+ box(480,300,600,1,vmath.vector4(0.24,0.25,0.23,1))
+ for i=1,#sentence do
+  self.letters[i] = text(sentence:sub(i,i),origin+(i-0.5)*pitch,baseline,1.6,ink)
+ end
+ self.delete_cursor = box(origin,baseline,2,36,amber)
+ self.back_cursor = box(origin+#sentence*pitch,baseline,2,36,blue)
+ text("DELETE  >",273,214,0.8,amber)
+ text("<  BACKSPACE",687,214,0.8,blue)
+ text("erase ahead",273,185,0.65,muted)
+ text("erase behind",687,185,0.65,muted)
+ self.caption = text("Press or hold either key.",480,100,0.65,muted)
+end
+local function erase(self, side)
+ if self.left > self.right then return end
+ local i = side == "delete" and self.left or self.right
+ local color = side == "delete" and amber or blue
+ gui.set_color(self.letters[i],color)
+ self.trails[#self.trails+1] = {node=self.letters[i],age=0,side=side,color=color,x=origin+(i-0.5)*pitch}
+ if side == "delete" then self.left=self.left+1 else self.right=self.right-1 end
+ gui.set_position(self.delete_cursor,vmath.vector3(origin+(self.left-1)*pitch,baseline,0))
+ gui.set_position(self.back_cursor,vmath.vector3(origin+self.right*pitch,baseline,0))
+ if self.left > self.right then
+  gui.set_text(self.caption,"")
+  self.finished = self.time
+ end
+end
+function update(self,dt)
+ self.time = self.time+dt
+ for _,side in ipairs({"delete","backspace"}) do
+  if self.held[side] then
+   self.held[side]=self.held[side]-dt
+   if self.held[side]<=0 then erase(self,side); self.held[side]=0.095 end
+  end
+ end
+ for i=#self.trails,1,-1 do
+  local t=self.trails[i]
+  t.age=t.age+dt
+  local progress=math.min(1,t.age/1.65)
+  local direction=t.side=="delete" and 1 or -1
+  gui.set_position(t.node,vmath.vector3(t.x+direction*progress*9,baseline+progress*48,0))
+  gui.set_color(t.node,vmath.vector4(t.color.x,t.color.y,t.color.z,(1-progress)*0.72))
+  if progress>=1 then gui.set_enabled(t.node,false);table.remove(self.trails,i) end
+ end
+ if self.finished and self.time-self.finished>1.7 then
+  -- Both routes end in the same quiet, unmarked line.
+  local fade=math.max(0,1-(self.time-self.finished-1.7)/0.5)
+  gui.set_color(self.delete_cursor,vmath.vector4(amber.x,amber.y,amber.z,fade))
+  gui.set_color(self.back_cursor,vmath.vector4(blue.x,blue.y,blue.z,fade))
+ end
+end
+function on_input(self,action_id,action)
+ local side
+ if action_id==hash("erase_left") then side="backspace" end
+ if action_id==hash("erase_right") then side="delete" end
+ if not side then return end
+ if action.pressed then erase(self,side);self.held[side]=0.34 end
+ if action.released then self.held[side]=nil end
+ return true
+end

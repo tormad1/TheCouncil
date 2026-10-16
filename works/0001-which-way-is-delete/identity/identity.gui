@@ -1,0 +1,5 @@
+script: "/identity/identity.gui_script"
+fonts { name: "debug" font: "/builtins/fonts/default.font" }
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT
+max_nodes: 64
