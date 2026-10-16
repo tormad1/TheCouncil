@@ -4,13 +4,18 @@ function M.ideate(c,s)
  local words=require('system.words').get(s.week)
  return table.concat({assert(F.read('system/prompts/ideate.txt')),assert(F.read('culture/PRINCIPLES.md')),persona,
  'Today: '..s.date..' / work '..s.id,'Weekly words (optional): '..table.concat(words.words,' / '),
+ require('system.creative').context(Mem.all(),s.member),
+ 'Available member moves: '..table.concat(require('system.creative').vocabulary.moves[s.member],', '),
  J.encode(Mem.packet(c,s.member,persona..' '..table.concat(words.words,' '))),s.rejection or ''},'\n\n')
 end
 function M.build(c,s,repair)
  local records={};local byid={};for _,r in ipairs(Mem.all())do byid[r.id]=r end
  for _,id in ipairs(F.load('memory/exhibition.json',{works=J.array()}).works)do records[#records+1]=byid[id]or {id=id}end
  return table.concat({assert(F.read(repair and 'system/prompts/repair.txt' or 'system/prompts/build.txt')),
+ assert(F.read('members/'..Clock.days[s.weekday]..'-'..s.member..'.md')),
+ 'Use the member voice to realise the accepted proposal. Preserve its idea and metadata.',
  J.encode(s.proposal),assert(F.read('culture/STYLE.md')),assert(F.read('culture/MEDIUM.md')),
+ 'Creative metadata: copy every descriptive field from the accepted proposal into manifest.json and set metadata_version to 1. The technical form still selects the build route.',
  'Identity: '..J.encode{id=s.id,date=s.date,member=s.member},
   'Current exhibition (maximum '..c.exhibition.maximum..'): '..J.encode(J.array(records)),
  'Write manifest.json and the artefact in artifact/. Keep work id, date, member and proposal unchanged. Set manifest.entry to the relative primary artefact path. tools/preview runs trusted checks. Write only inside this workspace. All shared material needed at runtime must be copied inside artifact/.',

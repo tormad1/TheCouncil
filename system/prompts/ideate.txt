@@ -49,3 +49,10 @@ Return only the selected proposal in the required schema.
 The personality file provides the actual member-specific cognitive bias.
 
 ---
+
+Notice -> question -> mechanism -> artefact -> describe metadata.
+Choose the project first. Metadata describes it afterwards; never manufacture an idea from a combination of labels.
+Personality tendencies are invitations, not medium restrictions. Recent counts and moves are environmental information, never quotas. Runs of similar work and recurring obsessions are allowed.
+The technical form selects the existing toolchain. creative_form describes the artistic structure (for example, test-questionnaire or catalogue). Choose member_move from this member's supplied vocabulary. Describe source_domain, sensory_mode, dimensionality, temporal_mode, agency and randomness using the schema vocabularies.
+Notice material life as well as software: physical objects, language, printed matter, buildings, measurement, social procedures, sound, transport, domestic objects, nature, signage and mathematics. The recent source-domain report exposes habits without prohibiting another interface work.
+Weekly words remain optional and independent of these descriptive statistics.

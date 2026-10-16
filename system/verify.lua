@@ -5,6 +5,11 @@ function M.run(c,path,s)
  local ok,manifest=pcall(F.load,path..'/manifest.json')
  if not ok or not manifest then issue(report,'Invalid or missing manifest.json');return report end
  for _,k in ipairs{'id','title','slug','date','member','form','summary','observation','concepts','mechanisms','interactions','toolchain','production','entry'}do if manifest[k]==nil then issue(report,'Missing manifest field '..k)end end
+ for _,e in ipairs(require('system.creative').validate(manifest,manifest.member,s and s.proposal and s.proposal.member_move~=nil))do issue(report,e)end
+ if s and s.proposal and s.proposal.member_move then
+  if manifest.metadata_version~=1 then issue(report,'Missing metadata_version 1')end
+  for _,k in ipairs(require('system.creative').fields)do if manifest[k]~=s.proposal[k]then issue(report,'Accepted creative metadata changed: '..k)end end
+ end
  if s then for _,k in ipairs{'id','date','member'}do if manifest[k]~=s[k]then issue(report,'Manifest identity mismatch: '..k)end end end
  if s and s.proposal then
   for _,k in ipairs{'title','observation','concepts','mechanisms','interactions','form'}do if J.encode(manifest[k])~=J.encode(s.proposal[k])then issue(report,'Accepted proposal changed: '..k)end end
@@ -51,7 +56,11 @@ function M.run(c,path,s)
    if build.exit_code~=0 then issue(report,'Bob build failed: '..build.stderr..'\n'..build.stdout)
    else
     local smoke_ok,smoke=pcall(F.call,{op='smoke',path=path..'-bundle',output=path..'/preview.png',log=path..'-reports/runtime.log',check_identity=true})
-    if not smoke_ok or not smoke.ok then issue(report,'Runtime smoke failed: '..(smoke_ok and J.encode(smoke)or tostring(smoke)),true)end
+    if not smoke_ok or not smoke.ok then
+     local infrastructure=not smoke_ok or (type(smoke)=='table' and smoke.infrastructure==true)
+     issue(report,'Runtime smoke failed: '..(smoke_ok and J.encode(smoke)or tostring(smoke)),not infrastructure)
+     if infrastructure then report.classification='infrastructure'end
+    end
     if F.exists(path..'/build')then F.call{op='remove',path=path..'/build'}end
    end
   end
@@ -67,7 +76,19 @@ function M.bob(c,path)
  F.mkdir(path..'-reports')
  local expected=lock.sha256 and lock.sha256['bob.jar']
  if expected and F.call{op='sha256',path=c.toolchain.bob}~=expected then return {exit_code=126,stderr='Bob checksum differs from toolchain.lock',stdout=''}end
- local argv={c.toolchain.java,'-jar',c.toolchain.bob,'--root',absolute,'--platform','wasm-web','--archive','--variant','debug','--bundle-output',absolute..'-bundle','--build-report-json',absolute..'-reports/bob-resources.json','build','bundle'}
+ local argv={c.toolchain.java,'-jar',c.toolchain.bob,'--root',absolute,'--platform','wasm-web','--archive','--variant','debug','--bundle-output',absolute..'-bundle','--build-report-json',absolute..'-reports/bob-resources.json'}
+ local title=(F.read(path..'/game.project')or ''):match('\ntitle%s*=%s*([^\r\n]+)')
+ if title and title:find('[<>:"/\\|?*]')then
+  -- Bob uses project.title as a directory name. Keep the authored title in the
+  -- source/manifest, but override only the build's platform directory label.
+  local manifest=F.load(path..'/manifest.json',{})
+  local safe=manifest.slug or title:gsub('[<>:"/\\|?*]',''):gsub('%s+$','')
+  assert(safe:match('^[%w%s%-_]+$')and #safe>0,'No safe bundle label')
+  local settings=absolute..'-reports/platform.project'
+  F.write(settings,'[project]\ntitle = '..safe..'\n')
+  argv[#argv+1]='--settings';argv[#argv+1]=settings
+ end
+ argv[#argv+1]='build';argv[#argv+1]='bundle'
  local result=F.exec(argv,'.',300);F.save(path..'-reports/bob-report.json',result);return result
 end
 function M.rasterize(c,input,output,w,h)

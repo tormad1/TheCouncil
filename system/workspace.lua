@@ -16,12 +16,13 @@ function M.prepare(c,s)
  F.write(path..'/MEDIUM.md',assert(F.read('culture/MEDIUM.md')))
  F.save(path..'/exhibition.json',F.load('memory/exhibition.json',{works=J.array()}))
  local root=F.exec({c.process.python,'-c','import os; print(os.getcwd())'},'.',20).stdout:gsub('%s+$','')
- F.write(path..'/tools/preview.py','import subprocess,sys\nraise SystemExit(subprocess.call([sys.executable,'..string.format('%q',root..'/system/run.py')..',"preview",'..string.format('%q',root..'/'..artifact)..']))\n')
+ F.write(path..'/tools/preview.py','import subprocess,sys\nraise SystemExit(subprocess.call([sys.executable,'..string.format('%q',root..'/system/preview_client.py')..','..string.format('%q',root..'/'..path)..']))\n')
  F.write(path..'/tools/preview.cmd','@echo off\r\n"'..c.process.python..'" "%~dp0preview.py"\r\n')
  F.write(path..'/tools/preview','#!/bin/sh\nexec '..c.process.python..' "$(dirname "$0")/preview.py"\n')
  return path
 end
 function M.manifest(c,s)
- local p=s.proposal;return {id=s.id,title=p.title,slug=p.title:lower():gsub('[^%w]+','-'):gsub('^%-',''):gsub('%-$',''),date=s.date,member=s.member,form=p.form,summary=p.premise,observation=p.observation,concepts=p.concepts,mechanisms=p.mechanisms,interactions=p.interactions,entry='work.txt',toolchain=F.load('toolchain.lock'),production={ideation_model=c.models.luna,ideation_effort='high',build_model=c.models[require('system.novelty').static(p.form)and 'luna'or 'sol'],build_effort=require('system.novelty').static(p.form)and 'high'or 'low',repairs=J.array()}}
+ local p=s.proposal;local manifest={id=s.id,title=p.title,slug=p.title:lower():gsub('[^%w]+','-'):gsub('^%-',''):gsub('%-$',''),date=s.date,member=s.member,form=p.form,summary=p.premise,observation=p.observation,concepts=p.concepts,mechanisms=p.mechanisms,interactions=p.interactions,entry='work.txt',toolchain=F.load('toolchain.lock'),production={ideation_model=c.models.luna,ideation_effort='high',build_model=c.models[require('system.novelty').static(p.form)and 'luna'or 'sol'],build_effort=require('system.novelty').static(p.form)and 'high'or 'low',repairs=J.array()}}
+ return require('system.creative').copy(p,manifest)
 end
 return M

@@ -83,6 +83,164 @@
         "minLength": 1,
         "maxLength": 80
       }
+    },
+    "member_move": {
+      "type": "string",
+      "enum": [
+        "accumulation",
+        "analogy_break",
+        "behavioural_inference",
+        "catalogue",
+        "chain_mechanisms",
+        "classification",
+        "compare_specimens",
+        "coordinate_profile",
+        "correction_lag",
+        "count",
+        "create_permission",
+        "create_standard",
+        "cross_representation",
+        "delayed_consequence",
+        "diagnosis",
+        "direction",
+        "discrepancy",
+        "duplicate_evidence",
+        "edge_case",
+        "false_equivalence",
+        "find_exception",
+        "formalise_ritual",
+        "incorrect_sequence",
+        "invert_convention",
+        "irreversibility",
+        "isolate",
+        "isomorphism",
+        "literalise_convention",
+        "make_challenge",
+        "map_rules",
+        "measure",
+        "measure_convention",
+        "memory",
+        "metadata_as_control",
+        "misapply_convention",
+        "misuse_output",
+        "questionnaire",
+        "reconstruction",
+        "remap_input",
+        "remove_convention",
+        "resonance",
+        "reverse_affordance",
+        "rhythm",
+        "risk_reward",
+        "scoring",
+        "shared_rhythm",
+        "silence",
+        "single_rule_game",
+        "split",
+        "structural_analogy",
+        "threshold",
+        "trace_variation",
+        "translate_system",
+        "wear",
+        "zoom"
+      ]
+    },
+    "source_domain": {
+      "type": "string",
+      "enum": [
+        "physical-object",
+        "language",
+        "mathematics",
+        "nature",
+        "sound",
+        "social-behaviour",
+        "institution",
+        "interface",
+        "computer",
+        "measurement",
+        "space",
+        "time",
+        "body",
+        "printed-matter",
+        "architecture",
+        "commerce",
+        "transport",
+        "signage",
+        "domestic-object",
+        "other"
+      ]
+    },
+    "sensory_mode": {
+      "type": "string",
+      "enum": [
+        "visual",
+        "audio",
+        "textual",
+        "mixed",
+        "non-sensory-data"
+      ]
+    },
+    "dimensionality": {
+      "type": "string",
+      "enum": [
+        "non-spatial",
+        "2d",
+        "3d",
+        "mixed"
+      ]
+    },
+    "temporal_mode": {
+      "type": "string",
+      "enum": [
+        "static",
+        "instant",
+        "stateful",
+        "continuous",
+        "sequence"
+      ]
+    },
+    "agency": {
+      "type": "string",
+      "enum": [
+        "observe",
+        "answer",
+        "choose",
+        "manipulate",
+        "navigate",
+        "perform",
+        "compete",
+        "none"
+      ]
+    },
+    "randomness": {
+      "type": "string",
+      "enum": [
+        "none",
+        "seeded",
+        "procedural",
+        "stochastic"
+      ]
+    },
+    "creative_form": {
+      "type": "string",
+      "enum": [
+        "comparison",
+        "classification",
+        "scale",
+        "spectrum",
+        "interactive-object",
+        "static-artefact",
+        "game-challenge",
+        "puzzle",
+        "simulation",
+        "test-questionnaire",
+        "instrument",
+        "temporal-piece",
+        "catalogue",
+        "reference-piece",
+        "procedure",
+        "transformation",
+        "other"
+      ]
     }
   },
   "required": [
@@ -96,6 +254,14 @@
     "form",
     "concepts",
     "mechanisms",
-    "interactions"
+    "interactions",
+    "member_move",
+    "source_domain",
+    "sensory_mode",
+    "dimensionality",
+    "temporal_mode",
+    "agency",
+    "randomness",
+    "creative_form"
   ]
 }

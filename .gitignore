@@ -1,3 +1,35 @@
-.local/
+# Machine-local runtime state, credentials, logs, and downloaded toolchain
+/.local/
+.env
+.env.*
+!.env.example
+
+# Python caches and virtual environments
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.venv/
+venv/
+env/
+
+# Generated Defold/Bob output inside archived works
+/works/**/build/
+/works/**/.defold/
+
+# Common generated dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# Operating system and editor detritus
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

@@ -2,11 +2,13 @@
 
 ## Implementation specification
 
-This document defines an autonomous computational-art collective consisting of six LLM council members and one human member.
+The current personality and descriptive-history extension is documented in [Creative context](CREATIVE-CONTEXT.md). Member files are the current source of personality detail; this extension supersedes narrower descriptions below. New creative metadata describes choices after ideation and never imposes quotas.
+
+This document defines an autonomous computational-art collective consisting of seven LLM council members.
 
 The repository is the canonical work.
 
-The collective creates one small, finished computational artefact for each calendar day on which the system successfully operates. Six days are authored autonomously by distinct artificial council members. Wednesday belongs entirely to the human creator.
+The collective creates one small, finished computational artefact for each calendar day on which the system successfully operates. Each day is authored autonomously by a distinct artificial council member.
 
 The project is not a software-development laboratory.
 
@@ -106,15 +108,13 @@ The weekly rotation is fixed.
 |---|---|
 | Monday | Vellum |
 | Tuesday | Moss |
-| Wednesday | Human |
+| Wednesday | Morrow |
 | Thursday | Knurl |
 | Friday | Sable |
 | Saturday | Pica |
 | Sunday | Oriel |
 
-Wednesday is never simulated.
-
-There must not be a fallback synthetic Wednesday personality.
+Wednesday is an autonomous member day, with the same bounded workflow as the other days.
 
 ---
 
@@ -180,30 +180,13 @@ Moss is patient and observant.
 
 ---
 
-# 6. Wednesday
+# 6. Morrow
 
-Wednesday belongs to the human creator.
+Morrow is an autonomous member who calmly treats repeated marks, gaps, near-alignments, delays and traces of removal as evidence that a concealed process is revising the world toward an earlier draft. His inferences should be orderly and persistent, yet quietly impossible to dislodge: ordinary explanations become further evidence within the same rules. Let the reader infer the instability from Morrow's measured certainty and strained conclusions; do not label or announce it.
 
-The automation must not:
+Keep the concealed process within the artistic frame. Do not claim that real people or organisations are secretly targeting or monitoring the user. The work should remain legible and engaging without requiring belief in Morrow's explanation.
 
-generate ideas;
-suggest projects automatically;
-rewrite the human project;
-perform artistic review;
-polish it;
-or use an LLM unless explicitly requested manually.
-
-The system may prepare Wednesday's work number, date, weekly words and empty staging directory.
-
-It then enters:
-
-`WAITING_FOR_HUMAN`
-
-The human may use the weekly words or ignore them.
-
-When the human submits the work, it goes through deterministic technical validation only.
-
-The human chooses whether it enters the current exhibition.
+Morrow speaks with mild patience and connects details others dismiss. Start from one concrete trace, make the proposed correction rule visible, and keep the finished artefact small.
 
 ---
 
@@ -2313,19 +2296,19 @@ Only creative or genuinely non-deterministic work invokes a model.
 
 # 77. Normal weekly model pattern
 
-There are six artificial days.
+There are seven artificial days.
 
 A normal Defold-heavy week should therefore resemble:
 
 ```text
-6 × Luna High ideation
-6 × Sol Low construction
+7 × Luna High ideation
+7 × Sol Low construction
 0 × Astra
 ```
 
 If some works are static, their build can use Luna instead of Sol.
 
-Wednesday consumes no automatic inference.
+Wednesday consumes inference under the same route and rolling-budget limits as the other member days.
 
 This normal route is what the system should be optimised around.
 
@@ -2533,34 +2516,23 @@ The actual files are the principal result.
 
 # 87. Wednesday workflow
 
-On Wednesday:
+On Wednesday, Morrow follows the normal autonomous workflow:
 
 ```text
 PREPARE
 ↓
-WAITING_FOR_HUMAN
+IDEATE
+↓
+PROPOSAL_GATE
+↓
+BUILD
+↓
+VERIFY
+↓
+PUBLISH
 ```
 
-The system generates an empty staging record containing:
-
-work number;
-date;
-weekly words;
-and optional current exhibition information.
-
-Then it does nothing.
-
-Useful commands:
-
-```text
-lua system/council.lua today
-lua system/council.lua human-path
-lua system/council.lua submit-human <directory>
-```
-
-Submission runs deterministic verification and publication.
-
-No automatic model reviews the human project.
+Morrow's persona is loaded from `members/wednesday-morrow.md`. Ideation, bounded construction, deterministic verification and publication use the same controls and model budget as the other member days.
 
 ---
 
@@ -2611,7 +2583,7 @@ Artificial members may be represented as Git author names if desired.
 
 The committer may remain the machine/user identity.
 
-Wednesday should use the human's normal authorship.
+The Git committer uses the configured repository identity; the member name is recorded in the work manifest.
 
 Do not require GitHub-specific identity features for the system to function.
 
@@ -2670,7 +2642,7 @@ The work still enters the archive.
 
 This creates actual curation without another model call.
 
-Wednesday's display decision belongs to the human.
+Wednesday's display decision follows the same bounded member curation rule as the other days.
 
 ---
 
@@ -2989,7 +2961,7 @@ Two overlapping heartbeats cannot run concurrently.
 
 A successful stage is not repeated after a crash.
 
-Wednesday cannot invoke a model automatically.
+Wednesday is an autonomous agent day and may invoke the configured model routes within the shared budget limits.
 
 A budget denial prevents Codex execution.
 
@@ -3373,9 +3345,7 @@ allocate work number
         ↓
 identify council chair
         ↓
-if Wednesday:
-    wait for human
-otherwise:
+Morrow follows the same bounded daily workflow as the other members.
         ↓
 build compact creative context
         ↓
@@ -3429,9 +3399,7 @@ It is not trying to prove that agents can replace developers.
 
 It is seven recurring authors sharing one small computational studio.
 
-Six are artificial.
-
-One is human.
+All seven are artificial members.
 
 Every week three unrelated words enter the room.
 

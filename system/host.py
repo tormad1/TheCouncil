@@ -99,13 +99,34 @@ def inventory(path):
 def execute(a):
     env = {k:v for k,v in os.environ.items() if k.upper() in {
         'PATH','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','TEMP','TMP','HOME','USERPROFILE',
-        'LOCALAPPDATA','APPDATA','CODEX_HOME','JAVA_HOME','LANG','LC_ALL'}}
+        'LOCALAPPDATA','APPDATA','CODEX_HOME','JAVA_HOME','LANG','LC_ALL',
+        'SYSTEMDRIVE','PROGRAMDATA','ALLUSERSPROFILE','PROGRAMFILES','PROGRAMFILES(X86)',
+        'PROGRAMW6432','COMMONPROGRAMFILES','COMMONPROGRAMFILES(X86)','COMMONPROGRAMW6432',
+        'HOMEDRIVE','HOMEPATH','OS','PROCESSOR_ARCHITECTURE','NUMBER_OF_PROCESSORS',
+        'CODEX_WINDOWS_SANDBOX_PACKAGE_FAMILY'}}
     started = time.monotonic()
     kwargs = dict(cwd=a.get('cwd',str(ROOT)),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                   stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace')
     if os.name == 'nt': kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
     else: kwargs['start_new_session'] = True
-    p = subprocess.Popen(a['argv'],**kwargs)
+    argv=list(a['argv'])
+    # Windows CreateProcess does not resolve executables as an interactive shell does.
+    # Resolve PATH entries before launch; the configured Codex path may be absolute.
+    argv[0]=shutil.which(argv[0]) or argv[0]
+    preview_stop=None;preview_thread=None
+    if a.get('preview_workspace'):
+        from preview_service import serve
+        preview_stop=threading.Event()
+        preview_thread=threading.Thread(target=serve,args=(a['preview_workspace'],preview_stop),daemon=True)
+        preview_thread.start()
+    try:
+        p = subprocess.Popen(argv,**kwargs)
+    except OSError as error:
+        if preview_stop:preview_stop.set()
+        result=dict(exit_code=127,started=False,stdout='',stderr=f'Could not start {argv[0]}: {error}',duration_seconds=0)
+        for key in ('stdout','stderr'):
+            if a.get(key):atomic(a[key],result[key])
+        return result
     try:
         stdout,stderr = p.communicate(a.get('input',''),timeout=a.get('timeout',1800)); code=p.returncode
     except subprocess.TimeoutExpired:
@@ -114,41 +135,65 @@ def execute(a):
         stdout,stderr=p.communicate(); code=124
     for key,text in [('stdout',stdout),('stderr',stderr)]:
         if a.get(key): atomic(a[key],text)
-    return dict(exit_code=code,stdout=stdout[-16000:],stderr=stderr[-16000:],duration_seconds=time.monotonic()-started)
+    if preview_stop:preview_stop.set()
+    return dict(exit_code=code,started=True,stdout=stdout[-16000:],stderr=stderr[-16000:],duration_seconds=time.monotonic()-started)
 
 def smoke(a):
     from playwright.sync_api import sync_playwright
+    from importlib.metadata import PackageNotFoundError, version
     directory=Path(a['path']).resolve()
     html=list(directory.rglob('*.html'))
     if not html: raise ValueError('No bundled HTML5 entry point')
     handler=lambda *args,**kw:http.server.SimpleHTTPRequestHandler(*args,directory=str(directory),**kw)
     server=http.server.ThreadingHTTPServer(('127.0.0.1',0),handler)
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-    errors=[]; logs=[]
+    errors=[]; logs=[];warnings=[];infrastructure=False;browser_info={'python':sys.executable}
+    try:browser_info['playwright']=version('playwright')
+    except PackageNotFoundError:browser_info['playwright']='unknown'
     try:
         with sync_playwright() as pw:
-            browser=pw.chromium.launch(headless=True)
-            page=browser.new_page(viewport={'width':960,'height':640})
-            page.on('pageerror',lambda e:errors.append(str(e)))
-            page.on('console',lambda m:(logs.append(m.text),errors.append(m.text) if m.type=='error' or any(x in m.text.lower() for x in ['lua error','shader error','failed to load']) else None))
-            page.route('**/*',lambda r:r.continue_() if r.request.url.startswith(('http://127.0.0.1:','data:','blob:')) else r.abort())
-            page.goto(f'http://127.0.0.1:{server.server_port}/'+html[0].relative_to(directory).as_posix(),wait_until='networkidle',timeout=45000)
-            page.wait_for_function('window.Module && window.Module.calledRun === true',timeout=30000)
-            page.wait_for_timeout(4000)
-            normal=page.screenshot(path=a['output'])
-            if a.get('check_identity'):
-                page.locator('#canvas').click(position={'x':10,'y':10})
-                page.keyboard.down('F1');page.wait_for_timeout(150);page.keyboard.up('F1');page.wait_for_timeout(250)
-                identity=page.screenshot(path=str(Path(a['output']).with_name('preview-identity.png')))
-                if identity==normal:errors.append('F1 identity overlay did not change the frame')
-                page.keyboard.press('Escape')
-            browser.close()
+            browser_type=pw.chromium
+            executable=Path(browser_type.executable_path)
+            browser_info.update(executable=str(executable),exists=executable.is_file(),local_app_data=os.environ.get('LOCALAPPDATA'))
+            browser=None;launch_errors=[]
+            # Pin the verified full Chromium executable. Playwright's implicit
+            # headless-shell selection can point at a different cache entry in
+            # scheduled/background launches, even when the pinned browser exists.
+            if executable.is_file():
+                try:browser=browser_type.launch(headless=True,executable_path=str(executable))
+                except Exception as error:launch_errors.append(f'pinned executable: {error}')
+            if browser is None:
+                try:
+                    browser=browser_type.launch(headless=True)
+                    if launch_errors:warnings.extend(launch_errors)
+                except Exception as error:
+                    launch_errors.append(f'default executable: {error}')
+                    infrastructure=True
+                    errors.append('Browser launch failed; '+ ' | '.join(launch_errors))
+            if browser is not None:
+                try:
+                    page=browser.new_page(viewport={'width':960,'height':640})
+                    page.on('pageerror',lambda e:errors.append(str(e)))
+                    page.on('console',lambda m:(logs.append(m.text),errors.append(m.text) if m.type=='error' or any(x in m.text.lower() for x in ['lua error','shader error','failed to load']) else None))
+                    page.route('**/*',lambda r:r.continue_() if r.request.url.startswith(('http://127.0.0.1:','data:','blob:')) else r.abort())
+                    page.goto(f'http://127.0.0.1:{server.server_port}/'+html[0].relative_to(directory).as_posix(),wait_until='networkidle',timeout=45000)
+                    page.wait_for_function('window.Module && window.Module.calledRun === true',timeout=30000)
+                    page.wait_for_timeout(4000)
+                    normal=page.screenshot(path=a['output'])
+                    if a.get('check_identity'):
+                        page.locator('#canvas').click(position={'x':10,'y':10})
+                        page.keyboard.down('F1');page.wait_for_timeout(150);page.keyboard.up('F1');page.wait_for_timeout(250)
+                        identity=page.screenshot(path=str(Path(a['output']).with_name('preview-identity.png')))
+                        if identity==normal:errors.append('F1 identity overlay did not change the frame')
+                        page.keyboard.press('Escape')
+                finally:browser.close()
     finally: server.shutdown();server.server_close()
     atomic(a['log'],'\n'.join(logs+errors))
-    return {'ok':not errors,'errors':errors,'log':a['log']}
+    return {'ok':not errors,'errors':errors,'warnings':warnings,'infrastructure':infrastructure,'browser':browser_info,'log':a['log']}
 
 def dispatch(a):
     op=a['op'];p=Path(a.get('path','.'))
+    if op=='uuid':return uuid.uuid4().hex
     if op=='read': return p.read_text(encoding='utf-8-sig') if p.exists() else None
     if op=='exists': return p.exists()
     if op=='write': atomic(p,a['data']);return True

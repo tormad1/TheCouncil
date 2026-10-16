@@ -1,12 +1,13 @@
 local M={};local Mem=require('system.memory');local J=require('system.json')
 M.forms={['defold-2d']=true,['defold-3d']=true,['defold-audio']=true,['defold-textual']=true,['defold-simulation']=true,['defold-game']=true,shader=true,svg=true,text=true,json=true,csv=true,['other-static']=true}
 function M.static(form)return form=='svg' or form=='text' or form=='json' or form=='csv' or form=='other-static'end
-function M.gate(p)
+function M.gate(p,member)
  local issues=J.array();local warnings=J.array()
  if type(p)~='table' then return false,{'Expected proposal object'},warnings end
  for _,key in ipairs{'title','observation','premise','mechanism','experience','scope','specificity'}do
   if type(p[key])~='string' or #p[key]<1 or #p[key]>1500 then issues[#issues+1]='Invalid '..key end
  end
+ for _,e in ipairs(require('system.creative').validate(p,member,true))do issues[#issues+1]=e end
  if not M.forms[p.form]then issues[#issues+1]='Invalid form'end
  for _,key in ipairs{'concepts','mechanisms','interactions'}do
   if type(p[key])~='table' or #p[key]<1 or #p[key]>8 then issues[#issues+1]='Invalid '..key

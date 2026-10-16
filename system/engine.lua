@@ -38,7 +38,7 @@ function M.advance(c,clock,manual_run)
  end
  if State.terminal[s.state]then return s end
  if s.state=='PROPOSAL_GATE'then
-  local ok,issues,warnings=require('system.novelty').gate(s.proposal);s.warnings=warnings
+  local ok,issues,warnings=require('system.novelty').gate(s.proposal,s.member);s.warnings=warnings
   if not ok then
    s.rejection=J.encode(issues)
    if s.retry<c.budget.max_creative_retries then s.retry=s.retry+1;return State.transition(s,'IDEATE_RETRY')end
@@ -61,7 +61,17 @@ function M.advance(c,clock,manual_run)
   end
   s.verification=require('system.verify').run(c,Workspace.path(s)..'/artifact',s)
   F.save('.local/runs/'..s.date..'/verification.json',s.verification)
-  if s.verification.ok then return State.transition(s,'PUBLISH')end
+  if s.verification.ok then s.infrastructure_retries=0;s.reason=nil;return State.transition(s,'PUBLISH')end
+  if s.verification.classification=='infrastructure' then
+   s.infrastructure_retries=(s.infrastructure_retries or 0)+1
+   local maximum=c.budget.max_infrastructure_retries or 2
+   if s.infrastructure_retries<maximum then
+    s.reason='Verification infrastructure failed; retrying without a model call ('..s.infrastructure_retries..'/'..maximum..')'
+    return State.transition(s,s.state)
+   end
+   s.reason='Verification infrastructure remained unavailable after '..s.infrastructure_retries..' checks: '..table.concat(s.verification.errors or {},'; ')
+   return State.transition(s,'NEEDS_ATTENTION')
+  end
   if s.member=='human'then return State.transition(s,'WAITING_FOR_HUMAN')end
   if s.repairs<c.budget.max_automatic_repairs then return State.transition(s,s.verification.classification=='complex' and 'REPAIR_COMPLEX'or 'REPAIR_SIMPLE')end
   return State.transition(s,'RESCUE_PENDING')

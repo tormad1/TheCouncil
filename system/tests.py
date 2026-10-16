@@ -13,16 +13,24 @@ class Studio:
         for name in ['system','members','culture','shared','words','memory']:
             shutil.copytree(ROOT/name,self.root/name,ignore=shutil.ignore_patterns('__pycache__'))
         for name in ['config.lua','toolchain.lock','AGENTS.md']:shutil.copy2(ROOT/name,self.root/name)
+        # Production data and live configuration must never influence offline fixtures.
+        (self.root/'memory/sequence.txt').write_text('0\n')
+        (self.root/'memory/catalogue.jsonl').write_text('')
+        (self.root/'memory/exhibition.json').write_text('{"works":[]}\n')
         (self.root/'works').mkdir();self.calls=[];self.clock=0
         for name in ['ACCEPTANCE_PASSED','SANDBOX_PASSED','TOOLCHAIN_PASSED']:
             p=self.root/'.local'/name;p.parent.mkdir(exist_ok=True);p.write_text('mock test readiness')
         self.lua=LuaRuntime(unpack_returned_tuples=True)
         def bridge(raw):
             a=json.loads(raw);self.calls.append(a)
-            try:return json.dumps({'ok':True,'value':host.dispatch(a)})
+            try:
+                argv=a.get('argv',[])
+                if a['op']=='exec' and '--model' in argv and argv[0]!='__missing_council_executable__':
+                    raise RuntimeError('Offline harness blocks real model executables')
+                return json.dumps({'ok':True,'value':host.dispatch(a)})
             except Exception as e:return json.dumps({'ok':False,'error':str(e)})
         self.lua.globals().HOST=bridge
-        self.eval("F=require('system.fs'); J=require('system.json'); S=require('system.state'); E=require('system.engine'); C=require('system.clock'); c=dofile('config.lua'); c.publication.git_commit=false")
+        self.eval("F=require('system.fs'); J=require('system.json'); S=require('system.state'); E=require('system.engine'); C=require('system.clock'); c=dofile('config.lua'); c.live_ai=false; c.live_ready=false; c.publication.git_commit=false")
     def eval(self,code):
         previous=Path.cwd();oldroot=host.ROOT;os.chdir(self.root);host.ROOT=self.root
         try:return self.lua.execute(code)
@@ -71,12 +79,59 @@ class Acceptance(unittest.TestCase):
         t=self.t;t.day('2027-01-04');t.beat()
         t.eval("F.save('.local/runs/2027-01-04/ideate/stage.requested.json',{invocation_id='uncertain'})")
         self.assertEqual(t.beat()['state'],'NEEDS_ATTENTION');self.assertEqual(len(t.events()),0)
-    def test_wednesday_never_calls_models(self):
-        t=self.t;t.day('2027-01-06');self.assertEqual(t.finish()['state'],'WAITING_FOR_HUMAN')
-        for _ in range(20):t.beat()
-        t.eval("c.live_ai=true;c.live_ready=true;s=S.get();s.mode='live'")
-        self.assertFalse(t.eval("return require('system.budget').authorize(c,s,'ideate',clock,false)" )[0])
-        self.assertEqual(len(t.events()),0)
+    def test_wednesday_is_autonomous_member(self):
+        t=self.t;t.day('2027-01-06');s=t.finish()
+        self.assertEqual(t.value('C.members[3]'),'morrow')
+        self.assertEqual(s['member'],'morrow');self.assertEqual(s['state'],'COMPLETE')
+        self.assertEqual(len(t.events()),2)
+    def test_creative_metadata_rejects_wrong_member_and_vocabulary(self):
+        t=self.t;t.day('2027-01-04')
+        t.eval("p=F.load('system/fixtures/valid-proposal.json');p.member_move='questionnaire';p.agency='teleport'")
+        errors=t.value("require('system.creative').validate(p,'vellum',true)")
+        self.assertIn('Invalid member_move for vellum',errors)
+        self.assertIn('Invalid creative metadata: agency',errors)
+        schema=t.value("require('system.creative').schema('morrow')")
+        self.assertIn('questionnaire',schema['properties']['member_move']['enum'])
+        self.assertNotIn('split',schema['properties']['member_move']['enum'])
+
+    def test_creative_metadata_publication_and_tamper(self):
+        t=self.t;t.day('2027-01-06');self.assertEqual(t.finish()['state'],'COMPLETE')
+        record=t.value("F.lines('memory/catalogue.jsonl')[1]")
+        self.assertEqual(record['member_move'],'diagnosis')
+        self.assertEqual(record['creative_form'],'static-artefact')
+        self.assertEqual(record['metadata_version'],1)
+        t.eval("m=F.load('.local/workspaces/0001/artifact/manifest.json');m.agency='answer';F.save('.local/workspaces/0001/artifact/manifest.json',m)")
+        report=t.value("require('system.verify').run(c,'.local/workspaces/0001/artifact',S.get())")
+        self.assertFalse(report['ok']);self.assertIn('Accepted creative metadata changed: agency',report['errors'])
+
+    def test_creative_history_window_and_member_history(self):
+        t=self.t
+        t.eval("records={};for i=1,20 do records[i]={id=i,member=i%2==0 and 'morrow' or 'moss',form='defold-2d',creative_form='test-questionnaire',member_move='diagnosis',source_domain='interface',sensory_mode='visual',dimensionality='2d',temporal_mode='stateful',agency='answer',randomness='none'}end;records[20].source_domain=nil")
+        summary=t.value("require('system.creative').summary(records,'morrow')")
+        self.assertEqual(summary['window'],14)
+        self.assertEqual(summary['counts']['source_domain'],{'interface':13,'unknown':1})
+        self.assertEqual(len(summary['member_forms']),3);self.assertEqual(len(summary['member_moves']),5)
+        self.assertEqual(summary['member_moves'],['diagnosis']*5)
+        text=t.value("require('system.creative').context(records,'morrow')")
+        self.assertEqual(text,t.value("require('system.creative').context(records,'morrow')"))
+        self.assertIn('Repetition is allowed',text)
+
+    def test_creative_legacy_and_partial_metadata(self):
+        t=self.t
+        self.assertEqual(t.value("require('system.creative').validate({member='sable'},'sable',false)"),[])
+        self.assertTrue(t.value("require('system.creative').validate({member_move='measure'},'pica',false)"))
+        summary=t.value("require('system.creative').summary({{member='sable',form='defold-2d'}},'sable')")
+        self.assertEqual(summary['counts']['creative_form'],{'unknown':1})
+        self.assertEqual(summary['member_moves'],['unknown'])
+
+    def test_creative_context_keeps_words_and_move_freedom(self):
+        t=self.t;t.day('2027-01-06')
+        prompt=t.value("require('system.context').ideate(c,S.get())")
+        self.assertIn('Weekly words (optional):',prompt)
+        self.assertIn('RECENT COLLECTIVE SHAPE',prompt)
+        self.assertIn('behavioural_inference',prompt)
+        self.assertIn('Choose the project first',prompt)
+
     def test_quota_denial_stops_gateway(self):
         t=self.t;t.day('2027-01-04');t.beat();t.eval("c.live_ai=true;c.live_ready=true;s=S.get();s.mode='live';S.save(s);c.budget.rolling_7d.luna_high_soft=0")
         self.assertEqual(t.beat()['state'],'PAUSED_BUDGET');self.assertEqual(len(t.events()),0)
@@ -158,11 +213,11 @@ class Acceptance(unittest.TestCase):
             t.day(date)
             if date=='2027-01-07':t.eval("s=S.get();s.scenario='broken';S.save(s)")
             results.append(t.finish()['state'])
-        self.assertEqual(results,['COMPLETE','COMPLETE','WAITING_FOR_HUMAN','COMPLETE','COMPLETE','COMPLETE','COMPLETE'])
-        self.assertEqual(len(t.events()),13);self.assertEqual(len(t.value("F.lines('memory/catalogue.jsonl')")),6)
+        self.assertEqual(results,['COMPLETE']*7)
+        self.assertEqual(len(t.events()),15);self.assertEqual(len(t.value("F.lines('memory/catalogue.jsonl')")),7)
     def test_human_submission_no_inference(self):
-        t=self.t;t.day('2027-01-06');t.finish()
-        t.eval("s=S.get();p=F.load('system/fixtures/valid-proposal.json');s.proposal=p;m=require('system.workspace').manifest(c,s);m.member='human';F.save('.local/workspaces/0001/artifact/manifest.json',m);F.write('.local/workspaces/0001/artifact/work.txt','Human fixture.');s.proposal=nil;s.decision={exhibit=false,retire_id=J.null,curation_note='Human choice'};S.transition(s,'VERIFY')")
+        t=self.t;t.day('2027-01-06')
+        t.eval("s=S.get();s.member='human';require('system.workspace').prepare(c,s);p=F.load('system/fixtures/valid-proposal.json');s.proposal=p;m=require('system.workspace').manifest(c,s);for _,k in ipairs(require('system.creative').fields)do m[k]=nil end;m.metadata_version=nil;m.member='human';F.save('.local/workspaces/0001/artifact/manifest.json',m);F.write('.local/workspaces/0001/artifact/work.txt','Human fixture.');s.proposal=nil;s.decision={exhibit=false,retire_id=J.null,curation_note='Human choice'};S.transition(s,'VERIFY')")
         self.assertEqual(t.finish()['state'],'COMPLETE');self.assertEqual(t.events(),[])
         self.assertEqual(t.value("F.load('memory/exhibition.json').works"),[])
     def test_immutable_after_verification(self):
@@ -216,6 +271,49 @@ class Acceptance(unittest.TestCase):
         t.eval("m=F.load('.local/workspaces/0001/artifact/manifest.json');m.form='defold-2d';m.entry='game.project';F.save('.local/workspaces/0001/artifact/manifest.json',m);F.write('.local/workspaces/0001/artifact/game.project','[project]\\ntitle = Fixture\\n')")
         report=t.value("require('system.verify').run(c,'.local/workspaces/0001/artifact')")
         self.assertFalse(report['ok']);self.assertIn('Pinned Bob not installed',' '.join(report['errors']))
+    def test_missing_executable_does_not_charge_model_usage(self):
+        t=self.t;t.day('2027-01-04');t.beat()
+        t.eval("c.live_ai=true;c.live_ready=true;c.process.codex='__missing_council_executable__';s=S.get();s.mode='live';S.save(s)")
+        state=t.beat();self.assertEqual(state['state'],'NEEDS_ATTENTION')
+        event=t.events()[0];self.assertEqual(event['outcome'],'not_started')
+        self.assertEqual(t.value("require('system.budget').view(c,clock.timestamp).rolling_7d.luna_high"),0)
+        process=t.value("F.load('.local/runs/2027-01-04/ideate/process.json')")
+        self.assertFalse(process['started']);self.assertEqual(process['exit_code'],127)
+    def test_offline_harness_blocks_live_executables(self):
+        result=self.t.eval("return pcall(F.exec,{'codex','exec','--model','gpt-6-luna'},'.',10,'')")
+        self.assertFalse(result[0]);self.assertIn('Offline harness blocks',result[1])
+    def test_windows_gateway_preserves_sandbox_with_ignored_config(self):
+        if os.name!='nt':self.skipTest('Windows only')
+        t=self.t;t.day('2027-01-04')
+        command=t.value("require('system.codex').command(c,S.get(),'defold_build','workspace','receipt')")
+        self.assertIn('--ignore-user-config',command)
+        self.assertIn('windows.sandbox="mxc"',command)
+        self.assertEqual(command[command.index('--sandbox')+1],'workspace-write')
+        self.assertNotIn('allow_login_shell=false',command)
+    def test_reset_build_uses_new_receipts_and_preserves_ideation(self):
+        t=self.t;t.day('2027-01-04');t.finish()
+        t.eval("s=S.get();s.build_attempt=1")
+        self.assertTrue(t.value("require('system.codex').paths(s,'defold_build')").endswith('defold_build-attempt-1'))
+        self.assertTrue(t.value("require('system.codex').paths(s,'simple_repair')").endswith('simple_repair-attempt-1'))
+        self.assertTrue(t.value("require('system.codex').paths(s,'ideate')").endswith('/ideate'))
+    def test_failed_preflight_cannot_spend_a_model_call(self):
+        t=self.t;t.day('2027-01-04')
+        for _ in range(3):t.beat()
+        t.eval("c.live_ai=true;c.live_ready=true;s=S.get();s.mode='live';S.save(s);require('system.process').preflight=function()return false,'policy blocked'end")
+        self.assertEqual(t.beat()['state'],'NEEDS_ATTENTION')
+        self.assertTrue(all(event['mode']=='mock'for event in t.events()))
+        self.assertFalse((t.root/'.local/runs/2027-01-04/static_build/stage.requested.json').exists())
+    def test_child_environment_keeps_runtime_paths_and_drops_secrets(self):
+        previous=os.environ.get('COUNCIL_TEST_SECRET');os.environ['COUNCIL_TEST_SECRET']='must-not-reach-child'
+        try:
+            argv=self.t.lua.table_from([sys.executable,'-c','import os,json;print(json.dumps({"secret":os.getenv("COUNCIL_TEST_SECRET"),"path":bool(os.getenv("PATH")),"systemroot":bool(os.getenv("SystemRoot"))}))'])
+            self.t.lua.globals().test_argv=argv
+            result=self.t.value("F.exec(test_argv,'.',20)")
+            values=json.loads(result['stdout']);self.assertIsNone(values['secret']);self.assertTrue(values['path'])
+            if os.name=='nt':self.assertTrue(values['systemroot'])
+        finally:
+            if previous is None:os.environ.pop('COUNCIL_TEST_SECRET',None)
+            else:os.environ['COUNCIL_TEST_SECRET']=previous
 
 if __name__=='__main__':
     suite=unittest.defaultTestLoader.loadTestsFromTestCase(Acceptance)

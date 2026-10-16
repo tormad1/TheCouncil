@@ -50,6 +50,9 @@ local function main()
  elseif cmd=='recover'then
   local date=assert(arg[2],'recover YYYY-MM-DD');assert(date<=clock.date,'Cannot recover a future date')
   local old=F.load('.local/runs/'..date..'/state.json')or State.prepare(c,Clock.date(c,date));old.recovery=true;return State.save(old)
+ elseif cmd=='recheck'then
+  local s=current();assert(s.id==tonumber(arg[2]),'Work id mismatch');assert(s.state=='RESCUE_PENDING','Recheck only from RESCUE_PENDING')
+  s.reason=nil;State.transition(s,'VERIFY');return Engine.advance(c,clock,true)
  elseif cmd=='rescue'then
   local s=current();assert(s.id==tonumber(arg[2]),'Work id mismatch');assert(s.state=='RESCUE_PENDING','Not awaiting rescue')
   local route=({['astra-low']='astra_low',['astra-medium']='astra_medium'})[arg[3]];assert(route,'rescue <id> astra-low|astra-medium')

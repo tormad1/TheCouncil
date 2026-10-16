@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "model_calls": 0,
+  "exit_code": 0,
+  "stderr": "",
+  "response": {
+    "classification": "simple",
+    "commands": [
+      {
+        "duration_seconds": 2.6720000000059,
+        "exit_code": 0,
+        "started": true,
+        "stderr": "",
+        "stdout": " 33% Working\n 33% Reading classes\n2026-10-16 20:31:12 INFO     \n 56% Reading classes\n 63% Reading classes\n 63% Cleaning engine\n 65% Cleaning engine\n 70% Cleaning engine\n 70% Reading tasks\n 73% Building\n2026-10-16 20:31:13 INFO    Creating task builder with a fixed thread pool executor using 10 threads \n2026-10-16 20:31:13 INFO    Build tasks \n 75% Building\n2026-10-16 20:31:14 INFO    Generating the resource graph \n2026-10-16 20:31:14 INFO    Generating the resource graph took 0.017000 s \n2026-10-16 20:31:14 INFO    Creation of the excluded resources list. \n2026-10-16 20:31:14 INFO    Creation of the excluded resources list took 0.000000 s \n2026-10-16 20:31:14 INFO    GameProjectBuilder.createArchive \n2026-10-16 20:31:14 INFO    Creating archive entries with a fixed thread pool executor using 10 threads \n2026-10-16 20:31:14 INFO    GameProjectBuilder.createArchive took 0.026000 \n2026-10-16 20:31:14 INFO    buildManifestData begin \n2026-10-16 20:31:14 INFO    ManifestBuilder.buildManifestData took 0.003000 \n2026-10-16 20:31:14 INFO    buildManifestData begin \n2026-10-16 20:31:14 INFO    ManifestBuilder.buildManifestData took 0.000000 \n2026-10-16 20:31:14 INFO    Writing the resource graph to json \n2026-10-16 20:31:14 INFO    Writing the resource graph to json took 0.004000 s \n2026-10-16 20:31:14 INFO    Build tasks took 0.771000 s \n 75% Generating report\n 78% Bundling\n100% Bundling\nTime profiler report creation took 0.00 seconds\nWarning: Failed to clean up temp directory 'C:\\Users\\torma\\AppData\\Local\\Temp\\1350714011587144100'\n"
+      }
+    ],
+    "errors": [],
+    "hashes": {
+      "game.project": "99fa67076bfb07656f73c03ef770723bc621e69961e3c96304d5ca833583a227",
+      "identity/identity.gui": "9220d128ea4c9ef5c131f8471c06aadb28277f45ea06a162643a86d7698a3136",
+      "identity/identity.gui_script": "0716995cf15b2fd72eee5e204ad1d0b1a5cdc676e5be6fb2ab3e316e27cabed4",
+      "identity/work.json": "ec9a1902d74534bd4f0b9df62ba02fcbf63be8e90c402ae010bbf0442bc41990",
+      "input/game.input_binding": "08413ff6d9ccc7aef574d3138316bd107a34189a9e45f13bb977d2ff842efb30",
+      "main/main.collection": "006fec2ecf160e9109d70089215b326a34c2d743f855e5109c0ee905656faf09",
+      "main/main.script": "18f34ffcca0fbdd6f690d5e6e4c0e2e464bcccc0980178bf58df8e9c245acb06",
+      "manifest.json": "c3a6f179303c8590912af586785534051facca232d46d06c76eab12b171b1014",
+      "preview-identity.png": "8296b44bc1d21a2485280e0dbedbe52f0c8e754f08031d74255fb0067bc3f100",
+      "preview.png": "cb8d3e3df767c41682c424c9a0fa2eedec40eed1f6b8ad746f64b17427372eab"
+    },
+    "ok": true,
+    "warnings": []
+  }
+}

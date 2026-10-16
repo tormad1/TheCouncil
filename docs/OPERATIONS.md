@@ -2,7 +2,7 @@
 
 Make one small complete thing. The idea should be more interesting than its implementation.
 
-The repository is the collection. Operational state is under ignored `.local/`. There are no real works yet. Live inference and scheduling are disabled. Synthetic test works exist only in disposable test repositories.
+The repository is the collection. Published works live under `works/`; machine-local operational state is under ignored `.local/`. The configured Windows installation has live inference and unattended scheduling enabled. A fresh checkout still needs its own setup, readiness checks and explicit scheduling authorization. Synthetic test works exist only in disposable test repositories.
 
 ## Installed on this machine
 
@@ -31,7 +31,8 @@ The source ZIP excludes Git history. After extracting it, initialize Git and com
 
 | Command | Purpose |
 |---|---|
-| `status`, `today`, `human-path` | Inspect the clock, active work and human staging directory |
+| `status`, `today` | Inspect the clock and active work |
+| `watch [seconds]` | Keep a live terminal dashboard open; shows the work date/member, title, stage, retry/repair counts and last workflow update. Press Ctrl+C to exit. |
 | `run` | Advance deterministic transitions and at most one inference stage |
 | `heartbeat` | Advance at most one persistent transition |
 | `pause`, `resume` | Create/remove `.local/PAUSE`; resume does not override budget policy |
@@ -40,8 +41,8 @@ The source ZIP excludes Git history. After extracting it, initialize Git and com
 | `validate <id-or-path>` | Deterministic checks; published works are copied into a validation cache |
 | `preview <staging-path>` | Builder-only verification within `.local/workspaces/`, available while the heartbeat owns its lock |
 | `build-workspace <path>` | Pinned Bob HTML5 build and JSON report |
-| `submit-human <path>` | Validate human files and enter publication; continue with `run` |
 | `rescue <id> astra-low` / `astra-medium` | Explicit manual rescue from `RESCUE_PENDING`; bypass automatic Astra cap |
+| `recheck <id>` | Re-run deterministic verification from `RESCUE_PENDING` without spending a model call |
 | `recover YYYY-MM-DD` | Explicitly select/allocate a historical day; continue with `run` |
 | `readme` | Regenerate the collection's front page deterministically |
 | `dry-run` | Print route, model, effort, context bytes, sandbox, argv and budget decision |
@@ -59,19 +60,11 @@ In mock mode `run`/`heartbeat` use fixtures. **Use disposable copies for rehears
 5. Manually invoke `run` and inspect `.local/runs/<date>/`. Repeat `run` across the ideation, build and verification/publication boundaries. Each inference is a separate bounded process. Heartbeats cannot start the first live day unattended.
 6. After several observed successful manual days, set `first_live_manual_done=true` and create `.local/MANUAL_DAYS_CONFIRMED` as the explicit installation confirmation. Only then install the scheduler. Windows installer: `system/scheduler/install-windows.ps1 -Enable -Python python`; Linux: `sh system/scheduler/install-systemd.sh --enable` with native `lua` on PATH.
 
-Scheduling is not installed in this delivery. Git push is not implemented or attempted; publication uses local commits. The repository must have a configured human Git name/email before the first live publication. Wednesday commits use that identity. Model names are in manifests rather than synthetic Git identities.
+Unattended scheduling is enabled on the configured installation. Git push is not implemented or attempted; publication uses local commits. The repository needs a configured Git committer name/email before the first live publication. Member names are recorded in manifests.
 
-## Wednesday
+## Wednesday: Morrow
 
-The heartbeat allocates the number, date and words, creates empty `artifact/` staging, and waits. No proposal, artistic review, polish or repair is generated. Failed technical checks return to `WAITING_FOR_HUMAN`.
-
-Place the finished file(s), `manifest.json` and `curation.json` in the submitted directory. The manifest follows the fields in the implementation specification and adds `entry` (the primary relative artefact path). Use the allocated id/date and `member: "human"`. `production` may be an empty object. `toolchain` may copy the applicable pinned versions. Human prose is never rewritten. A minimal curation decision is:
-
-```json
-{"exhibit": false, "retire_id": null, "curation_note": "Human decision."}
-```
-
-If exhibiting into a full exhibition, choose an existing id to retire. Retiring changes only exhibition membership; every completed work remains archived.
+Morrow infers hidden properties from indirect evidence with quiet, excessive certainty. Tests, questionnaires, profiles, scoring and forensic reconstruction are natural routes. His Palimpsest worldview need not appear in each work. See `members/wednesday-morrow.md` and [Creative context](CREATIVE-CONTEXT.md).
 
 ## Recovery and failure
 

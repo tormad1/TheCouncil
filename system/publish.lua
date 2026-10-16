@@ -2,7 +2,7 @@ local F=require('system.fs');local J=require('system.json');local Exhibition=req
 function M.readme(c)
  local all=require('system.memory').all();local byid={};for _,r in ipairs(all)do byid[r.id]=r end
  local lines={'# '..c.project_name,'','Seven recurring authors sharing one small computational studio. One small complete thing each active day.','',
- 'Monday Vellum · Tuesday Moss · Wednesday Human · Thursday Knurl · Friday Sable · Saturday Pica · Sunday Oriel',''}
+ 'Monday Vellum · Tuesday Moss · Wednesday Morrow · Thursday Knurl · Friday Sable · Saturday Pica · Sunday Oriel',''}
  for _,id in ipairs(F.load('memory/exhibition.json',{works=J.array()}).works)do local r=assert(byid[id],'Exhibition id missing from catalogue')
   lines[#lines+1]=string.format('- [%04d · %s](works/%s/) — %s, %s. %s',r.id,r.title:gsub('([%[%]])','\\%1'),r.path,r.member,r.date,r.summary)
  end
@@ -33,6 +33,7 @@ function M.run(c,s)
  for _,r in ipairs(all)do if r.id==s.id then assert(r.path==journal.path,'Catalogue collision');exists=true end end
  if not exists then
   local record={path=journal.path};for _,k in ipairs{'id','date','member','title','summary','observation','concepts','mechanisms','interactions','form'}do record[k]=manifest[k]end
+  require('system.creative').copy(manifest,record)
   F.append('memory/catalogue.jsonl',record)
  end
  Exhibition.update(c,s.id,s.decision);M.readme(c)

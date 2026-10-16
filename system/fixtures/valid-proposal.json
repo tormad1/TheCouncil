@@ -1,1 +1,27 @@
-{"title": "Fixture Width", "observation": "A fixture has a fixed width.", "premise": "A fixed width is recorded.", "mechanism": "Record the literal width in a text file.", "experience": "Read one measurement.", "form": "text", "concepts": ["measurement"], "mechanisms": ["literal-width"], "interactions": ["reading"], "scope": "One text file.", "specificity": "A width is a measurable property of this exact fixture."}
+{
+  "title": "Fixture Width",
+  "observation": "A fixture has a fixed width.",
+  "premise": "A fixed width is recorded.",
+  "mechanism": "Record the literal width in a text file.",
+  "experience": "Read one measurement.",
+  "form": "text",
+  "concepts": [
+    "measurement"
+  ],
+  "mechanisms": [
+    "literal-width"
+  ],
+  "interactions": [
+    "reading"
+  ],
+  "scope": "One text file.",
+  "specificity": "A width is a measurable property of this exact fixture.",
+  "member_move": "split",
+  "creative_form": "static-artefact",
+  "source_domain": "measurement",
+  "sensory_mode": "textual",
+  "dimensionality": "non-spatial",
+  "temporal_mode": "static",
+  "agency": "observe",
+  "randomness": "none"
+}

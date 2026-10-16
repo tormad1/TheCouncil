@@ -1,0 +1,152 @@
+{
+  "moves": {
+    "vellum": [
+      "split",
+      "threshold",
+      "edge_case",
+      "false_equivalence",
+      "direction"
+    ],
+    "moss": [
+      "accumulation",
+      "wear",
+      "delayed_consequence",
+      "memory",
+      "irreversibility",
+      "rhythm",
+      "resonance",
+      "silence"
+    ],
+    "morrow": [
+      "diagnosis",
+      "questionnaire",
+      "behavioural_inference",
+      "classification",
+      "scoring",
+      "coordinate_profile",
+      "discrepancy",
+      "reconstruction",
+      "duplicate_evidence",
+      "incorrect_sequence",
+      "correction_lag"
+    ],
+    "knurl": [
+      "remap_input",
+      "misuse_output",
+      "reverse_affordance",
+      "chain_mechanisms",
+      "metadata_as_control",
+      "make_challenge",
+      "risk_reward",
+      "single_rule_game"
+    ],
+    "sable": [
+      "invert_convention",
+      "measure_convention",
+      "literalise_convention",
+      "remove_convention",
+      "misapply_convention",
+      "formalise_ritual",
+      "create_standard",
+      "create_permission"
+    ],
+    "pica": [
+      "zoom",
+      "measure",
+      "count",
+      "isolate",
+      "compare_specimens",
+      "catalogue",
+      "trace_variation",
+      "find_exception"
+    ],
+    "oriel": [
+      "structural_analogy",
+      "translate_system",
+      "shared_rhythm",
+      "isomorphism",
+      "map_rules",
+      "analogy_break",
+      "cross_representation"
+    ]
+  },
+  "fields": {
+    "source_domain": [
+      "physical-object",
+      "language",
+      "mathematics",
+      "nature",
+      "sound",
+      "social-behaviour",
+      "institution",
+      "interface",
+      "computer",
+      "measurement",
+      "space",
+      "time",
+      "body",
+      "printed-matter",
+      "architecture",
+      "commerce",
+      "transport",
+      "signage",
+      "domestic-object",
+      "other"
+    ],
+    "sensory_mode": [
+      "visual",
+      "audio",
+      "textual",
+      "mixed",
+      "non-sensory-data"
+    ],
+    "dimensionality": [
+      "non-spatial",
+      "2d",
+      "3d",
+      "mixed"
+    ],
+    "temporal_mode": [
+      "static",
+      "instant",
+      "stateful",
+      "continuous",
+      "sequence"
+    ],
+    "agency": [
+      "observe",
+      "answer",
+      "choose",
+      "manipulate",
+      "navigate",
+      "perform",
+      "compete",
+      "none"
+    ],
+    "randomness": [
+      "none",
+      "seeded",
+      "procedural",
+      "stochastic"
+    ],
+    "creative_form": [
+      "comparison",
+      "classification",
+      "scale",
+      "spectrum",
+      "interactive-object",
+      "static-artefact",
+      "game-challenge",
+      "puzzle",
+      "simulation",
+      "test-questionnaire",
+      "instrument",
+      "temporal-piece",
+      "catalogue",
+      "reference-piece",
+      "procedure",
+      "transformation",
+      "other"
+    ]
+  }
+}
