@@ -1,0 +1,3 @@
+key_trigger { input: KEY_F1 action: "identity" }
+key_trigger { input: KEY_ESC action: "close_identity" }
+mouse_trigger { input: MOUSE_BUTTON_1 action: "touch" }

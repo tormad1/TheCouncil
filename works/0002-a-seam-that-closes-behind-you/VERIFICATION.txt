@@ -1,0 +1,17 @@
+# Verification
+
+Repair verification: tools/preview.cmd was rerun on 2026-10-16.
+The Defold build and bundle completed with exit code 0.
+The trusted preview result remains ok=false with this exact failure:
+Runtime smoke failed: ./system\fs.lua:14: BrowserType.launch: Executable doesn't exist at C:\Users\torma\AppData\Local\ms-playwright\chromium_headless_shell-1187\chrome-win\headless_shell.exe
+
+The demonstrated defect is a missing browser in the verification environment,
+outside the assigned writable workspace. The workspace preview client only
+requests the trusted service; it cannot configure that service's browser.
+Installing dependencies and writing outside this workspace are forbidden.
+No scene, interaction, visual design, identity, proposal, or manifest changes
+were made. No browsers, dependencies, or assets were downloaded.
+Rendered appearance and drag interaction remain unverified. Do not exhibit
+until the verification environment is repaired and tools/preview passes.
+
+The scene is entirely local, uses procedural GUI geometry and the bundled Defold font, and has one draggable slider. F1 retains the supplied identity overlay.

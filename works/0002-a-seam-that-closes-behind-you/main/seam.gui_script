@@ -1,0 +1,82 @@
+local ink=vmath.vector4(0.13,0.19,0.20,1)
+local paper=vmath.vector4(0.89,0.85,0.74,1)
+local pale=vmath.vector4(0.95,0.92,0.83,1)
+local brass=vmath.vector4(0.72,0.44,0.22,1)
+local light=vmath.vector4(0.93,0.68,0.36,1)
+local function box(x,y,w,h,c)
+ local n=gui.new_box_node(vmath.vector3(x,y,0),vmath.vector3(w,h,0))
+ gui.set_color(n,c)
+ return n
+end
+local function label(x,y,text,scale,c)
+ local n=gui.new_text_node(vmath.vector3(x,y,0),text)
+ gui.set_font(n,'paper');gui.set_scale(n,vmath.vector3(scale,scale,1));gui.set_color(n,c)
+ return n
+end
+local function place(n,x,y,w,h)
+ gui.set_position(n,vmath.vector3(x,y,0))
+ if w then gui.set_size(n,vmath.vector3(w,h,0)) end
+end
+function init(self)
+ msg.post('.', 'acquire_input_focus')
+ self.y=128; self.target=128; self.drag=false;self.rows={};self.parts={}
+ label(480,590,'A SEAM THAT CLOSES BEHIND YOU',0.78,pale)
+ label(480,561,'knurl   /   002',0.55,vmath.vector4(0.61,0.66,0.62,1))
+ -- Paper bands share edges; their torn inner margins move independently.
+ for i=1,48 do
+  local y=127+(i-1)*8
+  local r={y=y,amount=0,uneven=math.sin(i*1.7)*5+math.sin(i*.6)*3}
+  r.left=box(0,y,1,8.2,paper);r.right=box(0,y,1,8.2,pale)
+  self.rows[i]=r
+ end
+ self.teeth={}
+ for i=1,24 do
+  local y=132+(i-1)*16
+  local t={y=y,a=0}
+  t.l=box(0,y,23,6,brass);t.r=box(0,y+8,23,6,brass)
+  t.lh=box(0,y+2,14,1,light);t.rh=box(0,y+10,14,1,light)
+  self.teeth[i]=t
+ end
+ -- Faint fold lines remain in the paper, away from the seam.
+ box(274,315,1,376,vmath.vector4(.79,.75,.65,1))
+ box(686,315,1,376,vmath.vector4(.84,.81,.72,1))
+ box(480,117,34,8,brass)
+ self.parts={box(480,128,44,42,ink),box(480,128,36,38,brass),box(480,136,28,18,light),box(480,116,20,16,brass),box(480,103,16,37,light),box(480,101,8,22,ink)}
+ self.offsets={0,0,8,-12,-25,-27}
+ label(480,61,'Drag the brass pull upward.',0.68,pale)
+ label(480,36,'One moving point. A continuous fastening.',0.53,vmath.vector4(.61,.66,.62,1))
+end
+function update(self,dt)
+ self.y=self.y+(self.target-self.y)*math.min(1,dt*24)
+ for _,r in ipairs(self.rows) do
+  local goal=r.y<self.y-14 and 1 or 0
+  r.amount=r.amount+(goal-r.amount)*math.min(1,dt*18)
+  local open=1-r.amount
+  local gap=5+open*(39+math.max(0,r.y-self.y)*.065)
+  local l=480-gap+r.uneven*open
+  local rr=480+gap+r.uneven*open*.7
+  place(r.left,(250+l)/2,r.y,l-250,8.2)
+  place(r.right,(710+rr)/2,r.y,710-rr,8.2)
+ end
+ for i,t in ipairs(self.teeth) do
+  local goal=t.y<self.y-14 and 1 or 0
+  t.a=t.a+(goal-t.a)*math.min(1,dt*18)
+  local open=1-t.a
+  local gap=5+open*(39+math.max(0,t.y-self.y)*.065)
+  local wobble=math.sin((i*2-1)*1.7)*4*open
+  local l=480-gap-5+wobble;local r=480+gap+5+wobble*.7
+  place(t.l,l,t.y);place(t.r,r,t.y+8)
+  place(t.lh,l-2,t.y+2);place(t.rh,r+2,t.y+10)
+ end
+ for i,n in ipairs(self.parts) do place(n,480,self.y+self.offsets[i]) end
+end
+function on_input(self,id,a)
+ if id==hash('touch') then
+  if a.pressed and math.abs(a.x-480)<48 and math.abs(a.y-self.y+10)<52 then self.drag=true;self.offset=a.y-self.target end
+  if self.drag and a.y then self.target=math.max(128,math.min(522,a.y-self.offset)) end
+  if a.released then self.drag=false end
+  return self.drag
+ elseif self.drag and a.y then
+  self.target=math.max(128,math.min(522,a.y-self.offset))
+ end
+end
